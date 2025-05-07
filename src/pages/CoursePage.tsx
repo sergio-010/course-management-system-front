@@ -7,92 +7,114 @@ import StudentList from '../components/StudentList';
 import CourseActions from '../components/CourseActions';
 import CourseSelector from '../components/CourseSelector';
 
-interface Student {
-    id: number;
-    name: string;
-    email: string;
-    courseId: number;
-}
+import { Toaster, toast } from 'sonner';
 
-interface Course {
-    id: number;
-    name: string;
-    description: string;
-    maxStudents: number;
-    diversityIndex: number;
-    uniqueDomains: number;
-    totalStudents: number;
-}
+import type { Course, Student } from '../interfaces';
 
 const CoursePage: React.FC = () => {
-    const [students, setStudents] = useState<Student[]>([
-        { id: 1, name: 'Juan Pérez', email: 'juan@gmail.com', courseId: 1 },
-        { id: 2, name: 'Ana Gómez', email: 'ana@yahoo.com', courseId: 1 },
-        { id: 3, name: 'Carlos Díaz', email: 'carlos@hotmail.com', courseId: 2 },
-    ]);
-    const [courses, setCourses] = useState<Course[]>([
+    // Estados locales para datos mock
+    const [localCourses, setLocalCourses] = useState<Course[]>([
         {
             id: 1,
             name: 'Curso de Desarrollo Web',
-            description: 'Aprende a crear aplicaciones web modernas con React.',
-            maxStudents: 30,
+            description: 'Aprende a crear aplicaciones web modernas',
+            maxStudents: 10,
             diversityIndex: 65,
             uniqueDomains: 4,
             totalStudents: 10
-        },
-        {
-            id: 2,
-            name: 'Curso de Backend con Node.js',
-            description: 'Aprende a crear aplicaciones backend con Node.js.',
-            maxStudents: 25,
-            diversityIndex: 60,
-            uniqueDomains: 3,
-            totalStudents: 12
-        },
+        }
     ]);
-    const [course, setCourse] = useState<Course>(courses[0]);
-    const [isCourseModalOpen, setIsCourseModalOpen] = useState<boolean>(false);
-    const [isStudentModalOpen, setIsStudentModalOpen] = useState<boolean>(false);
-    const [studentName, setStudentName] = useState<string>('');
-    const [studentEmail, setStudentEmail] = useState<string>('');
-    const [newCourse, setNewCourse] = useState<{ name: string; description: string; maxStudents: number }>({ name: '', description: '', maxStudents: 0 });
-    const [editMode, setEditMode] = useState<boolean>(false);
 
-    const studentList = useMemo(() => students.filter((student) => student.courseId === course.id), [students, course]);
+    const [localStudents, setLocalStudents] = useState<Student[]>([
+        { id: 1, name: 'Juan Pérez', email: 'juan@example.com', courseId: 1 },
+        { id: 2, name: 'María García', email: 'maria@example.com', courseId: 1 }
+    ]);
 
+    // Estados de UI
+    const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
+    const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
+    const [studentName, setStudentName] = useState('');
+    const [studentEmail, setStudentEmail] = useState('');
+    const [newCourse, setNewCourse] = useState({
+        name: '',
+        description: '',
+        maxStudents: 0
+    });
+    const [editMode, setEditMode] = useState(false);
+    const [selectedCourseId, setSelectedCourseId] = useState<number | null>(1); // Seleccionamos el primer curso por defecto
+
+    // Obtener curso seleccionado
+    const course = localCourses.find(c => c.id === selectedCourseId) || null;
+
+    // Filtrar estudiantes
+    const studentList = useMemo(() => {
+        if (!selectedCourseId) return [];
+        return localStudents.filter((student) => student.courseId === selectedCourseId);
+    }, [localStudents, selectedCourseId]);
+
+    // Handlers
     const handleAddStudent = (e: FormEvent) => {
         e.preventDefault();
-        if (studentList.length >= course.maxStudents) {
-            alert('Cupo máximo alcanzado para este curso');
+        if (!selectedCourseId || studentList.length >= (course?.maxStudents || 0)) {
+            toast.error('El curso ya ha alcanzado el número máximo de estudiantes');
             return;
         }
+
         const newStudent = {
-            id: students.length + 1,
+            id: Math.max(0, ...localStudents.map(s => s.id)) + 1,
             name: studentName,
             email: studentEmail,
-            courseId: course.id,
+            courseId: selectedCourseId,
         };
-        setStudents([...students, newStudent]);
+
+        setLocalStudents([...localStudents, newStudent]);
         setStudentName('');
         setStudentEmail('');
         setIsStudentModalOpen(false);
+
+        // Actualizar contador de estudiantes en el curso
+        if (course) {
+            setLocalCourses(localCourses.map(c =>
+                c.id === selectedCourseId
+                    ? { ...c, totalStudents: c.totalStudents + 1 }
+                    : c
+            ));
+        }
+
+        // Mostrar toast de éxito
+        toast.success('Estudiante agregado exitosamente');
     };
 
+
     const handleDeleteStudent = (id: number) => {
-        setStudents(students.filter((student) => student.id !== id));
+        setLocalStudents(localStudents.filter(student => student.id !== id));
+
+        if (course) {
+            setLocalCourses(localCourses.map(c =>
+                c.id === selectedCourseId
+                    ? { ...c, totalStudents: Math.max(0, c.totalStudents - 1) }
+                    : c
+            ));
+        }
+        toast.success('Estudiante eliminado exitosamente');
     };
 
     const handleDeleteCourse = () => {
+        if (!selectedCourseId) return;
+
         if (window.confirm('¿Estás seguro de que deseas eliminar este curso?')) {
-            const updatedCourses = courses.filter((c) => c.id !== course.id);
-            setCourses(updatedCourses);
-            setCourse(updatedCourses.length > 0 ? updatedCourses[0] : { id: 0, name: '', description: '', maxStudents: 0, diversityIndex: 0, uniqueDomains: 0, totalStudents: 0 });
+            const newCourses = localCourses.filter(c => c.id !== selectedCourseId);
+            setLocalCourses(newCourses);
+            setLocalStudents(localStudents.filter(s => s.courseId !== selectedCourseId));
+            setSelectedCourseId(newCourses.length > 0 ? newCourses[0].id : null);
+            toast.success('Curso eliminado exitosamente');
         }
     };
 
-    const handleOpenCourseModal = (isEditMode: boolean) => {
-        setEditMode(isEditMode);
-        if (isEditMode) {
+
+    const handleOpenCourseModal = (isEdit: boolean) => {
+        setEditMode(isEdit);
+        if (isEdit && course) {
             setNewCourse({
                 name: course.name,
                 description: course.description,
@@ -105,30 +127,31 @@ const CoursePage: React.FC = () => {
     };
 
     const handleSaveCourse = (courseData: { name: string; description: string; maxStudents: number }) => {
-        if (editMode) {
-            const updatedCourses = courses.map(c => (c.id === course.id ? { ...c, ...courseData } : c));
-            setCourses(updatedCourses);
-            setCourse(updatedCourses.find(c => c.id === course.id)!);
+        if (editMode && course) {
+            setLocalCourses(localCourses.map(c =>
+                c.id === course.id
+                    ? { ...c, ...courseData }
+                    : c
+            ));
+            toast.success('Curso actualizado exitosamente');
         } else {
-            const newId = courses.length ? Math.max(...courses.map(c => c.id)) + 1 : 1;
-            const newCourseObj: Course = {
+            const newId = Math.max(0, ...localCourses.map(c => c.id)) + 1;
+            const newCourse = {
                 id: newId,
-                diversityIndex: 0,
-                uniqueDomains: 0,
-                totalStudents: 0,
                 ...courseData,
+                diversityIndex: 50,
+                uniqueDomains: 1,
+                totalStudents: 0
             };
-            setCourses([...courses, newCourseObj]);
-            setCourse(newCourseObj);
+            setLocalCourses([...localCourses, newCourse]);
+            setSelectedCourseId(newId);
+            toast.success('Curso creado exitosamente');
         }
         setIsCourseModalOpen(false);
     };
 
-    const handleSelectCourse = (selectedCourseId: number) => {
-        const selectedCourse = courses.find((c) => c.id === selectedCourseId);
-        if (selectedCourse) {
-            setCourse(selectedCourse);
-        }
+    const handleSelectCourse = (courseId: number) => {
+        setSelectedCourseId(courseId);
     };
 
     return (
@@ -137,42 +160,59 @@ const CoursePage: React.FC = () => {
                 <div className="bg-white p-6 rounded-2xl pb-10 shadow-sm border space-y-6">
                     <div className="flex justify-between items-center">
                         <div className="w-full">
-                            <h1 className="text-3xl font-semibold">{course.name || 'Sin curso activo'}</h1>
-                            <p className="text-gray-500">{course.description}</p>
+                            <h1 className="text-3xl font-semibold">
+                                {course?.name || 'Selecciona un curso'}
+                            </h1>
+                            <p className="text-gray-500">{course?.description}</p>
                             <CourseSelector
-                                courses={courses}
-                                selectedCourseId={course.id}
+                                courses={localCourses}
+                                selectedCourseId={selectedCourseId ?? undefined}
                                 onSelect={handleSelectCourse}
                             />
                         </div>
-                        <CourseActions
-                            onCreate={() => handleOpenCourseModal(false)}
-                            onEdit={() => handleOpenCourseModal(true)}
-                            onDelete={handleDeleteCourse}
-                        />
+                        {course && (
+                            <CourseActions
+                                onCreate={() => handleOpenCourseModal(false)}
+                                onEdit={() => handleOpenCourseModal(true)}
+                                onDelete={handleDeleteCourse}
+                            />
+                        )}
                     </div>
-                    <div className="text-sm text-gray-500">
-                        Cupo máximo: {course.maxStudents}
-                    </div>
-                    <DiversityIndexGauge
-                        diversityIndex={course.diversityIndex}
-                        uniqueDomains={course.uniqueDomains}
-                        totalStudents={course.totalStudents}
-                    />
+                    {course && (
+                        <>
+                            <div className="text-sm text-gray-500">
+                                Cupo máximo: {course.maxStudents}
+                            </div>
+                            <DiversityIndexGauge
+                                diversityIndex={course.diversityIndex}
+                                uniqueDomains={course.uniqueDomains}
+                                totalStudents={course.totalStudents}
+                            />
+                        </>
+                    )}
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl shadow-sm border space-y-6">
-                    <div className="flex justify-between items-center">
-                        <h2 className="text-2xl font-semibold">Estudiantes</h2>
-                        <button
-                            onClick={() => setIsStudentModalOpen(true)}
-                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
-                        >
-                            Agregar Estudiante
-                        </button>
+                {selectedCourseId && (
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border space-y-6">
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-2xl font-semibold">Estudiantes</h2>
+                            <button
+                                onClick={() => setIsStudentModalOpen(true)}
+                                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+                                disabled={studentList.length >= (course?.maxStudents || 0)}
+                            >
+                                Agregar Estudiante
+                            </button>
+                            {studentList.length >= (course?.maxStudents || 0) && (
+                                <p className="text-red-500 text-sm mt-2">El curso ya ha alcanzado el número máximo de estudiantes.</p>
+                            )}
+                        </div>
+                        <StudentList
+                            students={studentList}
+                            onDelete={handleDeleteStudent}
+                        />
                     </div>
-                    <StudentList students={studentList} onDelete={handleDeleteStudent} />
-                </div>
+                )}
             </div>
 
             <CourseModal
@@ -187,6 +227,7 @@ const CoursePage: React.FC = () => {
                         [name]: name === 'maxStudents' ? Number(value) : value,
                     });
                 }}
+                isEditing={editMode}
             />
 
             <StudentModal
@@ -198,6 +239,7 @@ const CoursePage: React.FC = () => {
                 onEmailChange={(e) => setStudentEmail(e.target.value)}
                 onSave={handleAddStudent}
             />
+            <Toaster richColors position="top-right" />
         </div>
     );
 };

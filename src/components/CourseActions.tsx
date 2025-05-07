@@ -11,21 +11,21 @@ const CourseActions: React.FC<CourseActionsProps> = ({ onCreate, onEdit, onDelet
         <div className="flex gap-2">
             <button
                 onClick={onCreate}
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+                className="px-4 py-2 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition"
             >
-                Crear Curso
+                Crear
             </button>
             <button
                 onClick={onEdit}
-                className="bg-yellow-400 text-white px-4 py-2 rounded-lg hover:bg-yellow-500 transition"
+                className="px-4 py-2 rounded-md bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition"
             >
-                Editar Curso
+                Editar
             </button>
             <button
                 onClick={onDelete}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+                className="px-4 py-2 rounded-md bg-red-100 text-red-700 hover:bg-red-200 transition"
             >
-                Eliminar Curso
+                Eliminar
             </button>
         </div>
     );

@@ -1,55 +1,33 @@
-# React + TypeScript + Vite
+# Course Manager App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicación web para gestionar cursos, estudiantes e índices de diversidad, construida con React + TypeScript.
 
-Currently, two official plugins are available:
+## Descripción
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**Course Manager App** permite:
 
-## Expanding the ESLint configuration
+- Crear, editar y eliminar cursos.
+- Agregar y eliminar estudiantes por curso.
+- Visualizar el cupo máximo y el número actual de estudiantes.
+- Mostrar un índice visual de diversidad en cada curso.
+- Mantener la UI limpia y responsive.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tecnologías utilizadas
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- **React** — Biblioteca principal para construir la interfaz de usuario.
+- **TypeScript** — Tipado estático para un código más robusto y mantenible.
+- **React Router** — Navegación entre rutas de forma elegante.
+- **Tailwind CSS** — Framework CSS para un diseño moderno, responsive y utilitario.
+- **Sonner** — Librería para notificaciones tipo toast, minimalista y con soporte para colores enriquecidos.
+- **Vite** — Herramienta de build ultrarrápida para desarrollo React moderno.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Instalación
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
-# course-management-system-front
+1. Clona el repositorio:
+   ```bash
+   git clone https://github.com/sergio-010/course-management-system-front.git
+   cd course-manager-app
+   npm install
+   ```
