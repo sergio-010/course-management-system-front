@@ -1,22 +1,25 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  createOrUpdateCourse,
+  createCourse,
+  updateCourse,
   deleteCourse,
   getCourse,
   getCourses,
 } from "../services/courseService";
 import type { Course } from "../interfaces";
 
-export const useCourses = () => {
-  return useQuery<Course[]>({
-    queryKey: ["courses"],
-    queryFn: getCourses,
-    placeholderData: [],
+// Cursos
+
+export const useCourses = (limit = 10, offset = 0) => {
+  return useQuery<{ data: Course[]; total: number }>({
+    queryKey: ["courses", limit, offset],
+    queryFn: () => getCourses(limit, offset),
+    placeholderData: { data: [], total: 0 },
   });
 };
 
-export const useCourse = (courseId?: number) => {
+export const useCourse = (courseId?: string) => {
   return useQuery<Course | null>({
     queryKey: ["course", courseId],
     queryFn: async () => {
@@ -28,19 +31,36 @@ export const useCourse = (courseId?: number) => {
   });
 };
 
-export const useCreateOrUpdateCourse = () => {
+export const useCreateCourse = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: createOrUpdateCourse,
+    mutationFn: createCourse,
     onSuccess: () => {
-      toast.success("✅ Curso guardado correctamente");
+      toast.success("✅ Curso creado correctamente");
       queryClient.invalidateQueries({ queryKey: ["courses"] });
     },
     onError: (error) => {
-      console.error("Error creando o actualizando curso:", error);
-      toast.error("❌ Error al guardar el curso");
+      console.error("Error creando curso:", error);
+      toast.error("❌ Error al crear el curso");
     },
-    meta: { feature: "createOrUpdateCourse" },
+    meta: { feature: "createCourse" },
+  });
+};
+
+export const useUpdateCourse = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<Course> }) =>
+      updateCourse(id, data),
+    onSuccess: () => {
+      toast.success("✅ Curso actualizado correctamente");
+      queryClient.invalidateQueries({ queryKey: ["courses"] });
+    },
+    onError: (error) => {
+      console.error("Error actualizando curso:", error);
+      toast.error("❌ Error al actualizar el curso");
+    },
+    meta: { feature: "updateCourse" },
   });
 };
 

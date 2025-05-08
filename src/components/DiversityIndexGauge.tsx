@@ -1,25 +1,25 @@
 import React from "react";
 
-interface DiversityIndexGaugeProps {
-    diversityIndex: number;
-    uniqueDomains: number;
-    totalStudents: number;
-}
+type DiversityIndexGaugeProps = {
+    domainDiversity: number;
+    maxStudents: number;
+    studentCount: number;
+};
 
 const DiversityIndexGauge: React.FC<DiversityIndexGaugeProps> = ({
-    diversityIndex,
-    uniqueDomains,
-    totalStudents,
+    domainDiversity,
+    maxStudents,
+    studentCount,
 }) => {
     // Función para determinar el color del círculo según el porcentaje
     const getGaugeColor = () => {
-        if (diversityIndex < 50) return "#f87171"; // Rojo para menor al 50%
-        if (diversityIndex < 75) return "#fbbf24"; // Amarillo para entre 50% y 75%
+        if (domainDiversity < 50) return "#f87171"; // Rojo para menor al 50%
+        if (domainDiversity < 75) return "#fbbf24"; // Amarillo para entre 50% y 75%
         return "#34d399"; // Verde para mayor o igual al 75%
     };
 
     // Cálculo para el porcentaje de llenado del círculo
-    const strokeDasharray = `${(diversityIndex / 100) * 440} 440`; // 440 es el perímetro del círculo con radio 70
+    const strokeDasharray = `${(domainDiversity / 100) * 440} 440`; // 440 es el perímetro del círculo con radio 70
 
     return (
         <div className="relative flex flex-col items-center justify-center">
@@ -51,7 +51,7 @@ const DiversityIndexGauge: React.FC<DiversityIndexGaugeProps> = ({
             {/* Texto central que muestra el porcentaje */}
             <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-xl font-semibold text-gray-800">
-                    {diversityIndex}%
+                    {domainDiversity}%
                 </span>
             </div>
 
@@ -60,8 +60,8 @@ const DiversityIndexGauge: React.FC<DiversityIndexGaugeProps> = ({
                 <div className="group relative inline-block">
                     <span className="underline">Ver detalle</span>
                     <div className="group-hover:block hidden absolute bottom-full mb-2 p-2 bg-gray-800 text-white text-xs rounded-md">
-                        <p>{`Dominios únicos: ${uniqueDomains}`}</p>
-                        <p>{`Estudiantes totales: ${totalStudents}`}</p>
+                        <p>{`Máx. estudiantes: ${maxStudents}`}</p>
+                        <p>{`Estudiantes totales: ${studentCount}`}</p>
                     </div>
                 </div>
             </div>

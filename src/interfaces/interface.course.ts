@@ -1,32 +1,36 @@
 export interface Course {
-  id: number;
+  id: string;
   name: string;
   description: string;
   maxStudents: number;
-  diversityIndex: number;
-  uniqueDomains: number;
-  totalStudents: number;
+  domainDiversity?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface StudentWithRelation {
+  id: string;
+  student: Student;
 }
 
 export interface Student {
-  id: number;
+  id: string;
   name: string;
   email: string;
-  courseId: number;
+  courseId: string;
 }
 
 export interface CourseSelectorProps {
   courses: Course[];
-  selectedCourseId?: number;
-  onSelect: (id: number) => void;
+  selectedCourseId?: string | null;
+  onSelect: (id: string) => void;
   isLoading?: boolean;
 }
 
 export interface StudentListProps {
-  students: Student[];
-  onDelete: (id: number) => void;
+  data: StudentWithRelation[];
+  onDelete: (id: string) => void;
 }
-
 export interface CourseModalProps {
   isOpen: boolean;
   onClose: () => void;

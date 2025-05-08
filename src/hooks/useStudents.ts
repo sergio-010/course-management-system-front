@@ -1,40 +1,47 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  addStudent,
-  deleteStudent,
-  getStudents,
+  getStudentsByCourse,
+  addStudentToCourse,
+  deleteStudentFromCourse,
 } from "../services/courseService";
-import type { Student } from "../interfaces";
 
-export const useStudents = () => {
-  return useQuery<Student[]>({
-    queryKey: ["students"],
-    queryFn: getStudents,
-    placeholderData: [],
+export const useStudentsByCourse = (courseId?: string) => {
+  return useQuery({
+    queryKey: ["students", courseId],
+    queryFn: async () => {
+      if (!courseId) return { students: [], total: 0 };
+      return await getStudentsByCourse(courseId);
+    },
+    enabled: !!courseId,
+    placeholderData: { students: [], total: 0 },
   });
 };
 
-export const useAddStudent = () => {
+export const useAddStudentToCourse = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: addStudent,
-    onSuccess: () => {
+    mutationFn: addStudentToCourse,
+    onSuccess: (_, variables) => {
       toast.success("✅ Estudiante agregado correctamente");
-      queryClient.invalidateQueries({ queryKey: ["students"] });
+      queryClient.invalidateQueries({
+        queryKey: ["students", variables.courseId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["course", variables.courseId],
+      });
     },
     onError: (error) => {
       console.error("Error agregando estudiante:", error);
       toast.error("❌ Error al agregar estudiante");
     },
-    meta: { feature: "addStudent" },
   });
 };
 
-export const useDeleteStudent = () => {
+export const useDeleteStudentFromCourse = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteStudent,
+    mutationFn: (id: string) => deleteStudentFromCourse(id),
     onSuccess: () => {
       toast.success("✅ Estudiante eliminado correctamente");
       queryClient.invalidateQueries({ queryKey: ["students"] });
@@ -43,6 +50,5 @@ export const useDeleteStudent = () => {
       console.error("Error eliminando estudiante:", error);
       toast.error("❌ Error al eliminar estudiante");
     },
-    meta: { feature: "deleteStudent" },
   });
 };
