@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://react.dev/" target="_blank">
+    <img src="https://reactjs.org/logo-og.png" width="200" alt="React Logo" />
+  </a>
+</p>
+
 # Course Manager App
 
 Aplicación web para gestionar cursos, estudiantes e índices de diversidad, construida con React + TypeScript.
