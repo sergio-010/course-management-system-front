@@ -26,8 +26,21 @@ Aplicación web para gestionar cursos, estudiantes e índices de diversidad, con
 ## Instalación
 
 1. Clona el repositorio:
-   ```bash
+
+```bash
    git clone https://github.com/sergio-010/course-management-system-front.git
    cd course-manager-app
    npm install
-   ```
+```
+
+2. Crea un archivo .env en la raíz del proyecto y agrega la siguiente línea:
+
+```bash
+    VITE_API_URL=http://localhost:4000/api
+```
+
+3. Inicia el servidor de desarrollo:
+
+```bash
+    npm run dev
+```
